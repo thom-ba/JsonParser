@@ -76,9 +76,11 @@ public:
         if (ch == '{') {
             return JSONValue(parseObject());
         } 
-        if (std::isdigit(ch))  {
+        if (std::isdigit(ch) || ch == '-')  {
             return JSONValue(parseNumber());
         }
+         
+
 
         printf("Error while parsing at char: %c", peek());
         exit(-1);
