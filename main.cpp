@@ -28,12 +28,16 @@ public:
     JSONType type;
     std::string stringValue;
     JSONObject* objectValue;
+    int numberValue;
 
     explicit JSONValue(std::string value) : 
         type(JSONType::String), stringValue(std::move(value)), objectValue(nullptr) {}
 
     explicit JSONValue(JSONObject* object) :
         type(JSONType::Object), objectValue(object) {}
+
+    explicit JSONValue(int number) :
+        type(JSONType::Number), numberValue(number) {}
 };
 
 class JSONObject {
@@ -71,9 +75,13 @@ public:
         }
         if (ch == '{') {
             return JSONValue(parseObject());
+        } 
+        if (std::isdigit(ch))  {
+            return JSONValue(parseNumber());
         }
 
-        throw std::runtime_error("Error while parsing");
+        printf("Error while parsing at char: %c", peek());
+        exit(-1);
     }
 
     std::string parseString() {
@@ -85,6 +93,16 @@ public:
         get();  // Skip the ending "
         return oss.str();
     }
+
+    int parseNumber() {
+        std::string result;
+        skipWhitespace();
+        while(isdigit(peek()) || peek() == '.' || peek() == '-') {
+            result += get();
+        }
+
+        return std::stoi(result);
+    } 
 
     JSONObject* parseObject() {
         auto* object = new JSONObject();
@@ -108,7 +126,7 @@ public:
     }
 };
 
-void printJson() {
+void printJson(JSONObject object) {
     UNIMPLEMENTED();
 }
 
