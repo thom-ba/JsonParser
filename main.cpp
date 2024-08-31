@@ -4,6 +4,7 @@
 #include <fstream>
 #include <sstream>
 #include <cctype>
+#include <vector>
 
 #define UNIMPLEMENTED() \
     do { \
@@ -21,21 +22,26 @@ enum class JSONType {
 };
 
 class JSONObject; 
+class JSONArray; 
 
 class JSONValue {
 public:
     JSONType type;
-    std::string stringValue;
     JSONObject* objectValue;
-    int numberValue;
+    JSONArray* arrayValue;
+    std::string stringValue;
     std::nullptr_t nullValue;
+    int numberValue;
     bool boolValue;
 
     explicit JSONValue(std::string value) : 
         type(JSONType::String), stringValue(std::move(value)) {}
 
     explicit JSONValue(JSONObject* object) :
-        type(JSONType::Object), objectValue(object) {}
+        type(JSONType::Object), objectValue(object){}
+
+    explicit JSONValue(JSONArray* arr) :
+        type(JSONType::Array), arrayValue(arr) {}
 
     explicit JSONValue(int number) :
         type(JSONType::Number), numberValue(number) {}
@@ -45,6 +51,7 @@ public:
 
     explicit JSONValue(std::nullptr_t null) :
         type(JSONType::Null), nullValue(null) {}
+
 };
 
 class JSONObject {
@@ -54,6 +61,17 @@ public:
     ~JSONObject() {
         for (auto& pair : values) {
             delete pair.second;
+        }
+    }
+};
+
+class JSONArray {
+public:
+    std::vector<JSONValue> values;
+
+    ~JSONArray() {
+        for(auto value : values) {
+            delete &value;
         }
     }
 };
@@ -83,6 +101,9 @@ public:
         if (ch == '{') {
             return JSONValue(parseObject());
         } 
+        if (ch == '[') {
+            return JSONValue(parseArray());
+        }
         if (std::isdigit(ch) || ch == '-')  {
             return JSONValue(parseNumber());
         }
@@ -131,7 +152,7 @@ public:
 
         return std::stoi(result);
     } 
-    int count =  0;
+
     JSONObject* parseObject() {
         auto* object = new JSONObject();
         get();  // Skip the starting '{'
@@ -141,7 +162,6 @@ public:
             auto key = parseString();
             skipWhitespace();
             if (get() != ':') {
-                printf("%d\n", count); 
                 throw std::runtime_error("Expected ':' after key in object");
             }
             skipWhitespace();
@@ -152,6 +172,21 @@ public:
         }
         get();  // Skip the ending '}'
         return object;
+    }
+    
+    JSONArray* parseArray() {
+        auto* array = new JSONArray();
+        get();  // Skip first '['
+        
+        while(peek() != ']') {
+            skipWhitespace();
+            array->values.push_back(parseValue());
+            skipWhitespace();
+            if(peek() == ',') get();
+        }
+
+        get();
+        return array;
     }
 };
 
