@@ -4,7 +4,6 @@
 #include <fstream>
 #include <sstream>
 #include <cctype>
-#include <stdexcept>
 
 #define UNIMPLEMENTED() \
     do { \
@@ -29,15 +28,23 @@ public:
     std::string stringValue;
     JSONObject* objectValue;
     int numberValue;
+    std::nullptr_t nullValue;
+    bool boolValue;
 
     explicit JSONValue(std::string value) : 
-        type(JSONType::String), stringValue(std::move(value)), objectValue(nullptr) {}
+        type(JSONType::String), stringValue(std::move(value)) {}
 
     explicit JSONValue(JSONObject* object) :
         type(JSONType::Object), objectValue(object) {}
 
     explicit JSONValue(int number) :
         type(JSONType::Number), numberValue(number) {}
+
+    explicit JSONValue(bool boolValue) :
+        type(JSONType::Boolean), numberValue(boolValue) {}
+
+    explicit JSONValue(std::nullptr_t null) :
+        type(JSONType::Null), nullValue(null) {}
 };
 
 class JSONObject {
@@ -79,11 +86,30 @@ public:
         if (std::isdigit(ch) || ch == '-')  {
             return JSONValue(parseNumber());
         }
-         
-
+        if (input.substr(index,  4) == "true") return JSONValue(parseTrue());
+        if (input.substr(index, 5) == "false") return JSONValue(parseFalse()); 
+        if (input.substr(index, 4) == "null") return JSONValue(parseNull());
 
         printf("Error while parsing at char: %c", peek());
         exit(-1);
+    }
+
+    bool parseTrue() {
+        // printf("Debug: Parsing true\n");
+        index += 4;
+        return true;
+    }
+
+    bool parseFalse() {
+        // printf("Debug: Parsing false\n");
+        index += 5;
+        return false;
+    }
+
+    std::nullptr_t parseNull() {
+        // printf("Debug: Parsing null\n");
+        index += 4;
+        return NULL;
     }
 
     std::string parseString() {
@@ -105,16 +131,17 @@ public:
 
         return std::stoi(result);
     } 
-
+    int count =  0;
     JSONObject* parseObject() {
         auto* object = new JSONObject();
         get();  // Skip the starting '{'
-        skipWhitespace();
-
+        
         while (peek() != '}') {
+            skipWhitespace();
             auto key = parseString();
             skipWhitespace();
             if (get() != ':') {
+                printf("%d\n", count); 
                 throw std::runtime_error("Expected ':' after key in object");
             }
             skipWhitespace();
