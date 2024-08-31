@@ -1,7 +1,7 @@
 #!/bin/bash
 
 # Variables
-SRC_FILE="main.cpp"  # Source file to compile
+SRC_FILE="./src/*"  # Source file to compile
 OUTPUT_FILE="a.out"  # Name of the output executable
 CXX=g++              # C++ compiler
 CXXFLAGS="-Wall -Wextra -std=c++17 -O2"  # Compiler flags for warnings, C++17 standard, and optimization
