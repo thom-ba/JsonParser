@@ -4,7 +4,7 @@
 #include <fstream>
 #include <sstream>
 #include <cctype>
-#include <stdexcept>
+#include <vector>
 
 #define UNIMPLEMENTED() \
     do { \
@@ -22,18 +22,36 @@ enum class JSONType {
 };
 
 class JSONObject; 
+class JSONArray; 
 
 class JSONValue {
 public:
     JSONType type;
-    std::string stringValue;
     JSONObject* objectValue;
+    JSONArray* arrayValue;
+    std::string stringValue;
+    std::nullptr_t nullValue;
+    int numberValue;
+    bool boolValue;
 
     explicit JSONValue(std::string value) : 
-        type(JSONType::String), stringValue(std::move(value)), objectValue(nullptr) {}
+        type(JSONType::String), stringValue(std::move(value)) {}
 
     explicit JSONValue(JSONObject* object) :
-        type(JSONType::Object), objectValue(object) {}
+        type(JSONType::Object), objectValue(object){}
+
+    explicit JSONValue(JSONArray* arr) :
+        type(JSONType::Array), arrayValue(arr) {}
+
+    explicit JSONValue(int number) :
+        type(JSONType::Number), numberValue(number) {}
+
+    explicit JSONValue(bool boolValue) :
+        type(JSONType::Boolean), numberValue(boolValue) {}
+
+    explicit JSONValue(std::nullptr_t null) :
+        type(JSONType::Null), nullValue(null) {}
+
 };
 
 class JSONObject {
@@ -43,6 +61,17 @@ public:
     ~JSONObject() {
         for (auto& pair : values) {
             delete pair.second;
+        }
+    }
+};
+
+class JSONArray {
+public:
+    std::vector<JSONValue> values;
+
+    ~JSONArray() {
+        for(auto value : values) {
+            delete &value;
         }
     }
 };
@@ -71,9 +100,37 @@ public:
         }
         if (ch == '{') {
             return JSONValue(parseObject());
+        } 
+        if (ch == '[') {
+            return JSONValue(parseArray());
         }
+        if (std::isdigit(ch) || ch == '-')  {
+            return JSONValue(parseNumber());
+        }
+        if (input.substr(index,  4) == "true") return JSONValue(parseTrue());
+        if (input.substr(index, 5) == "false") return JSONValue(parseFalse()); 
+        if (input.substr(index, 4) == "null") return JSONValue(parseNull());
 
-        throw std::runtime_error("Error while parsing");
+        printf("Error while parsing at char: %c", peek());
+        exit(-1);
+    }
+
+    bool parseTrue() {
+        // printf("Debug: Parsing true\n");
+        index += 4;
+        return true;
+    }
+
+    bool parseFalse() {
+        // printf("Debug: Parsing false\n");
+        index += 5;
+        return false;
+    }
+
+    std::nullptr_t parseNull() {
+        // printf("Debug: Parsing null\n");
+        index += 4;
+        return NULL;
     }
 
     std::string parseString() {
@@ -86,12 +143,22 @@ public:
         return oss.str();
     }
 
+    int parseNumber() {
+        std::string result;
+        skipWhitespace();
+        while(isdigit(peek()) || peek() == '.' || peek() == '-') {
+            result += get();
+        }
+
+        return std::stoi(result);
+    } 
+
     JSONObject* parseObject() {
         auto* object = new JSONObject();
         get();  // Skip the starting '{'
-        skipWhitespace();
-
+        
         while (peek() != '}') {
+            skipWhitespace();
             auto key = parseString();
             skipWhitespace();
             if (get() != ':') {
@@ -106,9 +173,24 @@ public:
         get();  // Skip the ending '}'
         return object;
     }
+    
+    JSONArray* parseArray() {
+        auto* array = new JSONArray();
+        get();  // Skip first '['
+        
+        while(peek() != ']') {
+            skipWhitespace();
+            array->values.push_back(parseValue());
+            skipWhitespace();
+            if(peek() == ',') get();
+        }
+
+        get();
+        return array;
+    }
 };
 
-void printJson() {
+void printJson(JSONObject object) {
     UNIMPLEMENTED();
 }
 
