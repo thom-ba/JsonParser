@@ -22,25 +22,32 @@ JSONParser::skip_white_spaces()
 }
 
 void
-JSONObject::print() {
-    for(const auto& val : values) {
-        if(val.first.empty()) {
-            printf("NaN: ");
-        } else {
-            printf("%s: ", val.first.c_str());
-        }
-        val.second->print();
-
-        printf("\n");
+JSONObject::print()
+{
+  for (const auto &val : values)
+  {
+    if (val.first.empty())
+    {
+      printf("NaN: ");
     }
+    else
+    {
+      printf("%s: ", val.first.c_str());
+    }
+    val.second->print();
+
+    printf("\n");
+  }
 }
 
-void 
-JSONArray::print() {
-    printf("\n");
-    for (const auto& value : values) {
-        value.print();
-    }
+void
+JSONArray::print()
+{
+  printf("\n");
+  for (const auto &value : values)
+  {
+    value.print();
+  }
 }
 
 JSONValue
@@ -76,39 +83,40 @@ JSONParser::parseValue()
   exit(-1);
 }
 
-void 
-JSONValue::print() const{
-    switch (type) {
-        case JSONType::Object:
-            objectValue->print();
-            break; 
+void
+JSONValue::print() const
+{
+  switch (type)
+  {
+  case JSONType::Object:
+    objectValue->print();
+    break;
 
-        case JSONType::Array:
-            arrayValue->print();
-            break;
+  case JSONType::Array:
+    arrayValue->print();
+    break;
 
-        case JSONType::String:
-            printf("\"%s\"", stringValue.c_str());
-            break;
+  case JSONType::String:
+    printf("\"%s\"", stringValue.c_str());
+    break;
 
-        case JSONType::Number:
-            printf("%d", numberValue);
-            break;
+  case JSONType::Number:
+    printf("%d", numberValue);
+    break;
 
-        case JSONType::Boolean:
-            printf("%s", (boolValue ? "true" : "false"));
-            break;
+  case JSONType::Boolean:
+    printf("%s", (boolValue ? "true" : "false"));
+    break;
 
-        case JSONType::Null:
-            printf("null");
-            break;
-    } 
+  case JSONType::Null:
+    printf("null");
+    break;
+  }
 }
 
 bool
 JSONParser::parseTrue()
 {
-  // printf("Debug: Parsing true\n");
   index += 4;
   return true;
 }
@@ -116,7 +124,6 @@ JSONParser::parseTrue()
 bool
 JSONParser::parseFalse()
 {
-  // printf("Debug: Parsing false\n");
   index += 5;
   return false;
 }
@@ -124,7 +131,6 @@ JSONParser::parseFalse()
 std::nullptr_t
 JSONParser::parseNull()
 {
-  // printf("Debug: Parsing null\n");
   index += 4;
   return NULL;
 }
@@ -200,8 +206,3 @@ JSONParser::parseArray()
   return array;
 }
 
-void
-JSONParser::printJson()
-{
-
-}

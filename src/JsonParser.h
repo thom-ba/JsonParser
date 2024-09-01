@@ -67,7 +67,8 @@ public:
   {
   }
 
-  void print() const;
+  void
+  print() const;
   // JSONType type;
   // JSONObject *objectValue;
   // JSONArray *arrayValue;
@@ -75,7 +76,6 @@ public:
   // std::nullptr_t nullValue;
   // int numberValue;
   // bool boolValue;
- 
 };
 
 class JSONObject
@@ -91,7 +91,8 @@ public:
     }
   }
 
-  void print();
+  void
+  print();
 };
 
 class JSONArray
@@ -106,8 +107,9 @@ public:
       delete &value;
     }
   }
-  
-  void print();
+
+  void
+  print();
 };
 
 class JSONParser
@@ -143,7 +145,5 @@ public:
   int
   parseNumber();
 
-  void
-  printJson();
 };
 #endif // JSONPARSER_H
