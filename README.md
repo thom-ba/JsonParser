@@ -34,3 +34,8 @@ Alternatively, you can compile it manually using:
 g++ -std=c++11 -o json_parser src/*.cpp
 ```
 
+If you want to use it, just include the .cpp and .h files in your 
+project, even though I wouldn't recommend using it. It was a just for fun 
+project for my webserver. If you are wondering you the parser can be used
+in the main.cpp is an example.
+
