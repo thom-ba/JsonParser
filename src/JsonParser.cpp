@@ -1,19 +1,15 @@
 // (C) Thomas Baumeister, 2024
 // For further information read the comment at the end of the file.
 
-
-
 #include "JsonParser.h"
 
-char
-JSONParser::peek() const
-{
+char JSONParser::peek() const {
+  if (index >= input.length()) throw std::out_of_range("Index out of bounds");
   return input[index];
 }
 
-char
-JSONParser::get()
-{
+char JSONParser::get() {
+  if (index >= input.length()) throw std::out_of_range("Index out of bounds");
   return input[index++];
 }
 
@@ -24,6 +20,18 @@ JSONParser::skip_white_spaces()
   {
     index++;
   }
+}
+
+JSONValue*
+JSONObject::getValue(std::string key) const
+{
+  auto it = values.find(key);
+  if (it != values.end())
+  {
+    return it->second;
+  }
+
+  throw std::runtime_error("Key not found or value is null: " + key);
 }
 
 void
@@ -46,7 +54,7 @@ JSONObject::print()
 }
 
 void
-JSONArray::print()
+JSONArray::print() 
 {
   printf("\n");
   for (const auto &value : values)
@@ -88,6 +96,34 @@ JSONParser::parseValue()
   exit(-1);
 }
 
+void *
+JSONValue::getActVal() const
+{
+  switch (type)
+  {
+  case JSONType::Object:
+    return objectValue;
+
+  case JSONType::Array:
+    return arrayValue;
+
+  case JSONType::String:
+    return static_cast<void *>(new std::string(stringValue));
+
+  case JSONType::Number:
+    return static_cast<void *>(new int(numberValue));
+
+  case JSONType::Boolean:
+    return static_cast<void *>(new bool(boolValue));
+
+  case JSONType::Null:
+    return nullValue;
+
+  default:
+    throw std::runtime_error("Unknown JSON type");
+  }
+}
+
 void
 JSONValue::print() const
 {
@@ -98,7 +134,12 @@ JSONValue::print() const
     break;
 
   case JSONType::Array:
-    arrayValue->print();
+    printf("[\n");
+    for(const auto& item : arrayValue->values) {
+        item.print();
+        printf(",\n");
+    }
+    printf("]\n");
     break;
 
   case JSONType::String:
@@ -139,17 +180,45 @@ JSONParser::parseNull()
   index += 4;
   return NULL;
 }
-
 std::string
 JSONParser::parseString()
 {
   std::ostringstream oss;
-  get(); // Skip the starting "
+  get();
   while (peek() != '"')
   {
-    oss << get();
+    char ch = get();
+    if (ch == '\\')
+    { 
+      char next = get();
+      switch (next)
+      {
+      case '\"':
+        oss << '\"';
+        break;
+      case '\\':
+        oss << '\\';
+        break;
+      case 'n':
+        oss << '\n';
+        break;
+      case 'r':
+        oss << '\r';
+        break;
+      case 't':
+        oss << '\t';
+        break;
+      default:
+        oss << next;
+        break; 
+      }
+    }
+    else
+    {
+      oss << ch;
+    }
   }
-  get(); // Skip the ending "
+  get();
   return oss.str();
 }
 
@@ -201,7 +270,8 @@ JSONParser::parseArray()
   while (peek() != ']')
   {
     skip_white_spaces();
-    array->values.push_back(parseValue());
+    JSONValue value = parseValue(); 
+    array->values.push_back(value);
     skip_white_spaces();
     if (peek() == ',')
       get();
@@ -211,15 +281,13 @@ JSONParser::parseArray()
   return array;
 }
 
-
-
 // This is free and unencumbered software released into the public domain.
-// 
+//
 // Anyone is free to copy, modify, publish, use, compile, sell, or
 // distribute this software, either in source code form or as a compiled
 // binary, for any purpose, commercial or non-commercial, and by any
 // means.
-// 
+//
 // In jurisdictions that recognize copyright laws, the author or authors
 // of this software dedicate any and all copyright interest in the
 // software to the public domain. We make this dedication for the benefit
@@ -227,7 +295,7 @@ JSONParser::parseArray()
 // successors. We intend this dedication to be an overt act of
 // relinquishment in perpetuity of all present and future rights to this
 // software under copyright law.
-// 
+//
 // THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,
 // EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
 // MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.
@@ -235,5 +303,5 @@ JSONParser::parseArray()
 // OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE,
 // ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR
 // OTHER DEALINGS IN THE SOFTWARE.
-// 
+//
 // For more information, please refer to <https://unlicense.org/>
