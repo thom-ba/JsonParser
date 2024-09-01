@@ -19,6 +19,7 @@ main()
   try
   {
     JSONValue value = jP.parseValue();
+    value.print();
     std::cout << "JSON parsed successfully!" << std::endl;
     // Clean up
     if (value.type == JSONType::Object)

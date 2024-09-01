@@ -66,6 +66,16 @@ public:
       : type(JSONType::Null), nullValue(null)
   {
   }
+
+  void print() const;
+  // JSONType type;
+  // JSONObject *objectValue;
+  // JSONArray *arrayValue;
+  // std::string stringValue;
+  // std::nullptr_t nullValue;
+  // int numberValue;
+  // bool boolValue;
+ 
 };
 
 class JSONObject
@@ -80,6 +90,8 @@ public:
       delete pair.second;
     }
   }
+
+  void print();
 };
 
 class JSONArray
@@ -94,6 +106,8 @@ public:
       delete &value;
     }
   }
+  
+  void print();
 };
 
 class JSONParser
@@ -130,6 +144,6 @@ public:
   parseNumber();
 
   void
-  printJson(JSONObject object);
+  printJson();
 };
 #endif // JSONPARSER_H

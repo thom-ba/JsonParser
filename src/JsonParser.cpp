@@ -21,6 +21,28 @@ JSONParser::skip_white_spaces()
   }
 }
 
+void
+JSONObject::print() {
+    for(const auto& val : values) {
+        if(val.first.empty()) {
+            printf("NaN: ");
+        } else {
+            printf("%s: ", val.first.c_str());
+        }
+        val.second->print();
+
+        printf("\n");
+    }
+}
+
+void 
+JSONArray::print() {
+    printf("\n");
+    for (const auto& value : values) {
+        value.print();
+    }
+}
+
 JSONValue
 JSONParser::parseValue()
 {
@@ -52,6 +74,35 @@ JSONParser::parseValue()
 
   printf("Error while parsing at char: %c", peek());
   exit(-1);
+}
+
+void 
+JSONValue::print() const{
+    switch (type) {
+        case JSONType::Object:
+            objectValue->print();
+            break; 
+
+        case JSONType::Array:
+            arrayValue->print();
+            break;
+
+        case JSONType::String:
+            printf("\"%s\"", stringValue.c_str());
+            break;
+
+        case JSONType::Number:
+            printf("%d", numberValue);
+            break;
+
+        case JSONType::Boolean:
+            printf("%s", (boolValue ? "true" : "false"));
+            break;
+
+        case JSONType::Null:
+            printf("null");
+            break;
+    } 
 }
 
 bool
@@ -150,7 +201,7 @@ JSONParser::parseArray()
 }
 
 void
-JSONParser::printJson(JSONObject object)
+JSONParser::printJson()
 {
-  UNIMPLEMENTED();
+
 }
