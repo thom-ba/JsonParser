@@ -3,13 +3,19 @@
 
 #include "JsonParser.h"
 
-char JSONParser::peek() const {
-  if (index >= input.length()) throw std::out_of_range("Index out of bounds");
+char
+JSONParser::peek() const
+{
+  if (index >= input.length())
+    throw std::out_of_range("Index out of bounds");
   return input[index];
 }
 
-char JSONParser::get() {
-  if (index >= input.length()) throw std::out_of_range("Index out of bounds");
+char
+JSONParser::get()
+{
+  if (index >= input.length())
+    throw std::out_of_range("Index out of bounds");
   return input[index++];
 }
 
@@ -22,7 +28,7 @@ JSONParser::skip_white_spaces()
   }
 }
 
-JSONValue*
+JSONValue *
 JSONObject::getValue(std::string key) const
 {
   auto it = values.find(key);
@@ -54,7 +60,7 @@ JSONObject::print()
 }
 
 void
-JSONArray::print() 
+JSONArray::print()
 {
   printf("\n");
   for (const auto &value : values)
@@ -135,9 +141,10 @@ JSONValue::print() const
 
   case JSONType::Array:
     printf("[\n");
-    for(const auto& item : arrayValue->values) {
-        item.print();
-        printf(",\n");
+    for (const auto &item : arrayValue->values)
+    {
+      item.print();
+      printf(",\n");
     }
     printf("]\n");
     break;
@@ -189,7 +196,7 @@ JSONParser::parseString()
   {
     char ch = get();
     if (ch == '\\')
-    { 
+    {
       char next = get();
       switch (next)
       {
@@ -210,7 +217,7 @@ JSONParser::parseString()
         break;
       default:
         oss << next;
-        break; 
+        break;
       }
     }
     else
@@ -270,7 +277,7 @@ JSONParser::parseArray()
   while (peek() != ']')
   {
     skip_white_spaces();
-    JSONValue value = parseValue(); 
+    JSONValue value = parseValue();
     array->values.push_back(value);
     skip_white_spaces();
     if (peek() == ',')

@@ -75,7 +75,7 @@ public:
   using ValueVariant = std::variant<std::string, JSONObject *, JSONArray *, int,
                                     bool, std::nullptr_t>;
 
-  void*
+  void *
   getActVal() const;
 
   void
@@ -94,8 +94,8 @@ public:
       delete pair.second;
     }
   }
-  
-  JSONValue*  
+
+  JSONValue *
   getValue(std::string val) const;
 
   void
