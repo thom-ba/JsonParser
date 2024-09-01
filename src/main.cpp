@@ -67,7 +67,7 @@ printPaths(const JSONValue &root)
 int
 main()
 {
-  std::ifstream fin("input.txt");
+  std::ifstream fin("input.json");
   if (!fin)
   {
     std::cerr << "Failed to open file." << std::endl;

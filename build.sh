@@ -21,5 +21,5 @@ fi
 # Optional: Run the executable
 # Uncomment the following lines to run the executable automatically after building
 echo "Running the executable..."
-./$OUTPUT_FILE < input.txt
+./$OUTPUT_FILE < input.json
 

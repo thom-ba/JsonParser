@@ -1,0 +1,13 @@
+{
+   "routes":[
+      {
+         "path":"/home/tomba/purr/routes/testing"
+      },
+      {
+         "path":"/home/tomba/purr/routes/test"
+      },
+      {
+         "path":"/home/tomba/purr/routes/aaa"
+      }
+   ]
+}
